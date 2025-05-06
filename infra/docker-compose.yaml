@@ -4,6 +4,8 @@ services:
     container_name: zookeeper
     ports:
       - "2181:2181"
+    environment:
+      TZ: Asia/Shanghai
 
   kafka:
     image: wurstmeister/kafka
@@ -17,6 +19,7 @@ services:
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      TZ: Asia/Shanghai
     depends_on:
       - zookeeper
 
@@ -29,8 +32,10 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root123
       MYSQL_DATABASE: order_db
+      TZ: Asia/Shanghai
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./mysql/conf.d:/etc/mysql/conf.d  # 可选：挂载自定义配置
 
   redis:
     image: redis:6.2
@@ -38,7 +43,12 @@ services:
     restart: always
     ports:
       - "6379:6379"
+    environment:
+      TZ: Asia/Shanghai  # 设置Redis容器时区
     command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data  # 持久化Redis数据
 
 volumes:
   mysql_data:
+  redis_data:

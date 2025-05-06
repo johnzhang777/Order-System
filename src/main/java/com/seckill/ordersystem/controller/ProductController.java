@@ -3,7 +3,6 @@ package com.seckill.ordersystem.controller;
 import com.seckill.ordersystem.entity.Product;
 import com.seckill.ordersystem.service.ProductService;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 

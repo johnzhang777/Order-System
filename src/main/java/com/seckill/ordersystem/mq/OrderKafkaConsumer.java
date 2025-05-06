@@ -1,6 +1,6 @@
 package com.seckill.ordersystem.mq;
 
-import com.seckill.ordersystem.dto.OrderMessage;
+import com.seckill.ordersystem.dto.OrderCreateRequestDTO;
 import com.seckill.ordersystem.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public class OrderKafkaConsumer {
     private final StringRedisTemplate stringRedisTemplate;
 
     @KafkaListener(topics = "order-topic", groupId = "order-group")
-    public void consumeOrder(OrderMessage message) {
+    public void consumeOrder(OrderCreateRequestDTO message) {
         log.info("Received order message: {}", message);
         try {
             orderService.createOrder(message.getUserId(), message.getActivityId(), message.getQuantity());

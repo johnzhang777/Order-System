@@ -5,11 +5,11 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class OrderMessage {
+public class OrderCreateRequestDTO {
     private Long activityId;
     private Long userId;
     private Integer quantity;
     private String orderNo;
 
-    public OrderMessage() {}    // Default constructor for JsonDeserializer
+    public OrderCreateRequestDTO() {}    // Default constructor for JsonDeserializer
 }

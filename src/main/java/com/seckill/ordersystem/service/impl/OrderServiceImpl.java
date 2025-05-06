@@ -1,6 +1,8 @@
 package com.seckill.ordersystem.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.seckill.ordersystem.common.CommonResult;
+import com.seckill.ordersystem.common.SeckillErrorCode;
 import com.seckill.ordersystem.entity.OrderMain;
 import com.seckill.ordersystem.entity.SeckillActivity;
 import com.seckill.ordersystem.entity.StockFlow;
@@ -31,6 +33,11 @@ public class OrderServiceImpl implements OrderService {
     public void createOrder(Long userId, Long activityId, Integer quantity) {
         SeckillActivity seckillActivity = seckillActivityMapper.selectById(activityId);
 
+        if (seckillActivity == null) {
+            CommonResult.fail(SeckillErrorCode.ACTIVITY_NOT_FOUND);
+            throw new RuntimeException("Activity not found：" + activityId);
+        }
+
         String orderNo = IdWorker.getIdStr(); // 分布式ID生成
 
         // 1. 创建订单
@@ -49,8 +56,6 @@ public class OrderServiceImpl implements OrderService {
         flow.setOrderNo(orderNo);
         flow.setFlowType("RESERVE");
         flow.setQuantity(quantity);
-//        flow.setPreStock(999);  // 可选填
-//        flow.setPostStock(998); // 可选填
         stockFlowMapper.insert(flow);
 
         log.info("订单创建成功，orderNo={}", orderNo);
