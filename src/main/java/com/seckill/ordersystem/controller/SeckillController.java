@@ -1,6 +1,8 @@
 package com.seckill.ordersystem.controller;
 
 import com.seckill.ordersystem.common.CommonResult;
+import com.seckill.ordersystem.dto.ActivityCreateRequestDTO;
+import com.seckill.ordersystem.dto.ActivityCreateResponseDTO;
 import com.seckill.ordersystem.dto.OrderResponseDTO;
 import com.seckill.ordersystem.service.SeckillService;
 import jakarta.annotation.Resource;
@@ -17,6 +19,10 @@ public class SeckillController {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
+    @PostMapping("/createSeckillActivity")
+    public CommonResult<ActivityCreateResponseDTO> createSeckillActivity(@RequestBody ActivityCreateRequestDTO dto) {
+        return seckiillService.createSeckillActivity(dto);
+    }
 
     @PostMapping("/{activityId}")
     public CommonResult<OrderResponseDTO> seckill(@PathVariable Long activityId, @RequestParam Long userId, @RequestParam Integer quantity) {

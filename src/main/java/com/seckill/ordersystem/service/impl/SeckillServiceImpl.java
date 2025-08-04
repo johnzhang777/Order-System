@@ -3,6 +3,8 @@ package com.seckill.ordersystem.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.seckill.ordersystem.common.CommonResult;
 import com.seckill.ordersystem.common.SeckillErrorCode;
+import com.seckill.ordersystem.dto.ActivityCreateRequestDTO;
+import com.seckill.ordersystem.dto.ActivityCreateResponseDTO;
 import com.seckill.ordersystem.dto.OrderCreateRequestDTO;
 import com.seckill.ordersystem.dto.OrderResponseDTO;
 import com.seckill.ordersystem.entity.SeckillActivity;
@@ -11,24 +13,26 @@ import com.seckill.ordersystem.mq.OrderKafkaProducer;
 import com.seckill.ordersystem.service.SeckillService;
 import com.seckill.ordersystem.util.LuaScriptUtil;
 import jakarta.annotation.Resource;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collections;
 
 @Service
 @Slf4j
+@Data
 public class SeckillServiceImpl implements SeckillService {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-
     @Resource
     private OrderKafkaProducer orderKafkaProducer;
-
     @Resource
     private SeckillActivityMapper seckillActivityMapper;
 
@@ -55,5 +59,34 @@ public class SeckillServiceImpl implements SeckillService {
         BigDecimal totalPrice = seckillActivity.getSeckillPrice().multiply(BigDecimal.valueOf(quantity));
         OrderResponseDTO dto = new OrderResponseDTO(orderNo, userId, activityId, quantity, totalPrice);
         return CommonResult.success(dto);
+    }
+
+    @Override
+    public CommonResult<ActivityCreateResponseDTO> createSeckillActivity(ActivityCreateRequestDTO dto) {
+        SeckillActivity seckillActivity = new SeckillActivity();
+//        seckillActivity.setProductId(dto.getProductId());
+//        seckillActivity.setSeckillPrice(dto.getSeckillPrice());
+//        seckillActivity.setStock(dto.getStock());
+//        seckillActivity.setInitialStock(dto.getStock());
+//        seckillActivity.setLimitPerUser(dto.getLimitPerUser());
+//        seckillActivity.setStartTime(dto.getStartTime());
+//        seckillActivity.setEndTime(dto.getEndTime());
+//        seckillActivity.setStatus(dto.getStatus());
+
+        BeanUtils.copyProperties(dto, seckillActivity);
+        seckillActivity.setCreateTime(LocalDateTime.now());
+        seckillActivity.setUpdateTime(LocalDateTime.now());
+        seckillActivity.setVersion(0L); // 乐观锁初始值
+
+        int row = seckillActivityMapper.insert(seckillActivity);
+        if (row <= 0) {
+            log.error("创建秒杀活动失败，参数={}", dto);
+            return CommonResult.fail(SeckillErrorCode.ACTIVITY_CREATE_FAILED);
+        }
+
+        ActivityCreateResponseDTO responseDTO = new ActivityCreateResponseDTO();
+        responseDTO.setId(seckillActivity.getId());
+        BeanUtils.copyProperties(seckillActivity, responseDTO);
+        return CommonResult.success(responseDTO);
     }
 }

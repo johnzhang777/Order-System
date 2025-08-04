@@ -45,6 +45,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderNo(orderNo);
         order.setUserId(userId);
         order.setActivityId(activityId);
+        order.setQuantity(quantity);
         order.setTotalPrice(seckillActivity.getSeckillPrice().multiply(BigDecimal.valueOf(quantity)));
         order.setStatus(0); // waiting for paying
         orderMainMapper.insert(order);
