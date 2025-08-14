@@ -8,9 +8,7 @@ import com.seckill.ordersystem.mapper.OrderMainMapper;
 import com.seckill.ordersystem.mapper.SeckillActivityMapper;
 import com.seckill.ordersystem.mapper.StockFlowMapper;
 import com.seckill.ordersystem.service.PaymentService;
-import jakarta.annotation.Resource;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -34,7 +32,7 @@ public class PaymentServiceImpl implements PaymentService {
         Long userId = request.getUserId();
         OrderMain order = orderMainMapper.selectByOrderNo(orderNo);
         if (order == null || !order.getUserId().equals(userId)) {
-            log.warn("订单不存在或用户不匹配，orderNo={}", orderNo);
+            log.warn("订单不存在或用户不匹配，orderNo={}，userId(DB) {} != {}", orderNo, order.getUserId(), userId);
             return;
         }
 
@@ -45,6 +43,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         // 模拟支付结果（1成功、3失败、2超时）
         int status = new Random().nextInt(3) + 1;
+        status = 1;
 
         if (status == 1) {
             boolean orderUpdated = orderMainMapper.updateStatusByOrderNo(orderNo, 0, 1, order.getVersion()) == 1;
@@ -62,7 +61,7 @@ public class PaymentServiceImpl implements PaymentService {
 
             if (!stockUpdated) {
                 // 回滚订单状态
-                orderMainMapper.updateStatusByOrderNo(orderNo, 1, 0, order.getVersion() + 1);
+                orderMainMapper.updateStatusByOrderNo(orderNo, 1, 3, order.getVersion() + 1);
                 log.warn("库存扣减失败，回滚订单状态成功，orderNo={}", orderNo);
                 return;
             }
@@ -71,7 +70,7 @@ public class PaymentServiceImpl implements PaymentService {
             flow.setActivityId(order.getActivityId());
             flow.setUserId(userId);
             flow.setOrderNo(orderNo);
-            flow.setFlowType("PAYMENT");
+            flow.setFlowType("CONFIRM");
             flow.setQuantity(order.getQuantity());
             stockFlowMapper.insert(flow);
 

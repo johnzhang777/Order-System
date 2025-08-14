@@ -13,8 +13,8 @@ public interface SeckillActivityMapper extends BaseMapper<SeckillActivity> {
 
     @Update("""
         UPDATE seckill_activity 
-        SET available_stock = available_stock - #{quantity}, version = version + 1 
-        WHERE id = #{id} AND version = #{version} AND available_stock >= #{quantity}
+        SET stock = stock - #{quantity}, version = version + 1 
+        WHERE id = #{id} AND version = #{version} AND stock >= #{quantity}
     """)
     int updateStockWithVersion(@Param("id") Long id,
                                @Param("quantity") Integer quantity,

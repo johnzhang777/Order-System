@@ -1,6 +1,5 @@
 package com.seckill.ordersystem.service.impl;
 
-import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.seckill.ordersystem.common.CommonResult;
 import com.seckill.ordersystem.common.SeckillErrorCode;
 import com.seckill.ordersystem.entity.OrderMain;
@@ -30,15 +29,13 @@ public class OrderServiceImpl implements OrderService {
     private final ProductMapper productMapper;
 
     @Override
-    public void createOrder(Long userId, Long activityId, Integer quantity) {
+    public void createOrder(Long userId, Long activityId, Integer quantity, String orderNo) {
         SeckillActivity seckillActivity = seckillActivityMapper.selectById(activityId);
 
         if (seckillActivity == null) {
             CommonResult.fail(SeckillErrorCode.ACTIVITY_NOT_FOUND);
             throw new RuntimeException("Activity not found：" + activityId);
         }
-
-        String orderNo = IdWorker.getIdStr(); // 分布式ID生成
 
         // 1. 创建订单
         OrderMain order = new OrderMain();

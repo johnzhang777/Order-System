@@ -21,7 +21,7 @@ public class OrderKafkaConsumer {
     public void consumeOrder(OrderCreateRequestDTO message) {
         log.info("Received order message: {}", message);
         try {
-            orderService.createOrder(message.getUserId(), message.getActivityId(), message.getQuantity());
+            orderService.createOrder(message.getUserId(), message.getActivityId(), message.getQuantity(), message.getOrderNo());
             stringRedisTemplate.opsForValue().set("seckill:order_status:" + message.getOrderNo(), "SUCCESS", Duration.ofMinutes(5));
         } catch (Exception e) {
             stringRedisTemplate.opsForValue().set("seckill:order_status:" + message.getOrderNo(), "FAILED", Duration.ofMinutes(5));
