@@ -19,9 +19,24 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: '*'
+      # 消费者并发数
+      concurrency: 4  # 启动 4 个线程消费
+    listener:
+      # 批量监听
+      type: batch
+      # 提交方式
+      ack-mode: manual_immediate
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      # 批量大小
+      batch-size: 16384  # 16KB
+      # 等待更多消息组成批次
+      linger-ms: 5
+      # 缓冲区大小
+      buffer-memory: 33554432  # 32MB
+      # 启用压缩
+      compression-type: lz4
 
   data:
     redis:
